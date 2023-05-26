@@ -10,24 +10,79 @@
           integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
 
     <!-- Google Icon -->
-  <link
-    href="https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp"
-    rel="stylesheet">
+    <link
+            href="https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp"
+            rel="stylesheet">
     <title>Hello, world!</title>
+    <style>
+        .box {
+            width: 150px;
+            height: 150px;
+            border-radius: 70%;
+            overflow: hidden;
+        }
+
+        .profile {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    </style>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container-fluid">
+<nav class="navbar navbar-expand-lg navbar-light bg-light" style="position:fixed; width: 100%">
+    <div class="container-fluid" style="justify-content: space-between; flex-wrap: nowrap; min-width:1000px">
         <a class="navbar-brand" href="#"><img style="width:100px"
                                               src="https://www.instagram.com/static/images/web/mobile_nav_type_logo-2x.png/1b47f9d0e595.png"></a>
-        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-        <span class="material-icons">home</span>
-        <span class="material-icons-outlined">send</span>
-        <span class="material-icons-outlined">add_box</span>
-        <span class="material-icons-outlined">explore</span>
-        <span class="material-icons-outlined">favorite_border</span>
+        <input class="form-control me-2" style="width:400px" type="search" placeholder="Search" aria-label="Search">
+        <div>
+            <span class="material-icons">home</span>
+            <span class="material-icons-outlined">send</span>
+            <span class="material-icons-outlined">add_box</span>
+            <span class="material-icons-outlined">explore</span>
+            <span class="material-icons-outlined">favorite_border</span>
+        </div>
     </div>
 </nav>
+
+<div style="display: grid; grid-template-columns: repeat(5, 1fr); text-align: center; justify-content: center; padding-top: 60px; background-color: #FAFAFA;">
+    <div style="grid-column: 2 / 4">
+        <div style="border: solid 1px gray; background: white">
+            <div style="display: flex; flex-direction: row; align-items: center; margin-left: 20px">
+                <div class="box" style="width: 60px; height: 60px">
+                    <img class="profile" src="https://techcrunch.com/wp-content/uploads/2010/07/github-logo.png?w=1390&crop=1">
+                </div>
+                <div>
+                    DamonJo
+                </div>
+            </div>
+            <div>
+                <img style="max-width: 100%; height: auto;" src="https://cbmpress.sfo2.digitaloceanspaces.com/tlife/1217139809_GNysJXrj_7ae0173d09e19362ada6e92244fbdff188fff9e4.png">
+            </div>
+            <div style="display: flex; flex-direction: row; justify-content: space-between; margin: 0 20px">
+                <div>
+                    <span class="material-icons-outlined">favorite_border</span>
+                    <span class="material-icons-outlined">mode_comment</span>
+                    <span class="material-icons-outlined">send</span>
+                </div>
+                <div>
+                    <span class="material-icons-outlined">bookmark_border</span>
+                </div>
+
+            </div>
+            <div style="text-align: left; font-size: 14px; margin: 0 20px"><b>Liked by</b> Ronaldo <b>and 21 others</b></div>
+            <div style="text-align: left; font-size: 16px; margin: 0 20px"><b>Ronaldo</b> I also want to go on a trip to Banff.</div>
+            <div style="text-align: left; font-size: 16px; margin: 0 20px"><b>Jisung-Park</b> Awesome!!</div>
+            <div style="text-align: left; font-size: 16px; margin: 0 20px"><b>Ssony</b> What a beautiful weather *.*</div>
+            <div>***</div>
+        </div>
+    </div>
+    <div style="grid-column: 4 / 5; background: orange; position: fixed; left: 60%; width: 20%">
+        <div style="width: 100%">
+            right
+        </div>
+    </div>
+</div>
 
 <!-- Optional JavaScript; choose one of the two! -->
 
