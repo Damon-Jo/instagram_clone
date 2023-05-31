@@ -5,6 +5,7 @@ from rest_framework.response import Response
 
 from .models import Feed
 from Jinstagram.settings import MEDIA_ROOT
+from user.models import User
 # Create your views here.
 from rest_framework.views import APIView
 
@@ -13,7 +14,18 @@ class Main(APIView):
     def get(self, request):
         feed_list = Feed.objects.all().order_by('-id') # select * from content_feed;
 
-        return render(request, "jinstagram/main.html", context=dict(feeds=feed_list))
+        print('User logged in : ', request.session['email'])
+        email = request.session['email']
+
+        if email is None:
+            return render(request, 'user/login.html')
+
+        user = User.objects.filter(email=email).first()
+
+        if user is None:
+            return render(request, 'user/login.html')
+
+        return render(request, "jinstagram/main.html", context=dict(feeds=feed_list, user=user))
 
 class UploadFeed(APIView):
     def post(self, request):
