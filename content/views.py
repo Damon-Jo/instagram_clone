@@ -38,8 +38,8 @@ class Main(APIView):
                     nickname=user.nickname))
 
             like_count = Like.objects.filter(feed_id=feed.id, is_like=True).count()
-            is_liked=Like.objects.filter(feed_id=feed.id, email=email, is_like=True).exists()
-
+            is_liked = Like.objects.filter(feed_id=feed.id, email=email, is_like=True).exists()
+            is_marked = Bookmark.objects.filter(feed_id=feed.id, email=email, is_marked=True).exists()
             feed_list.append(dict(
                 id=feed.id,
                 image=feed.image,
@@ -48,11 +48,11 @@ class Main(APIView):
                 profile_image=user.profile_image,
                 nickname=user.nickname,
                 reply_list=reply_list,
-                is_liked = is_liked
+                is_liked=is_liked,
+                is_marked=is_marked
             ))
 
         # print('User logged in : ', request.session['email'])
-
 
         return render(request, "jinstagram/main.html", context=dict(feeds=feed_list, user=user))
 
@@ -72,7 +72,7 @@ class UploadFeed(APIView):
         content = request.data.get('content')
         email = request.session.get('email', None)
 
-        Feed.objects.create(image=image, content=content, email=email, like_count=0)
+        Feed.objects.create(image=image, content=content, email=email)
 
         return Response(status=200)
 
@@ -90,7 +90,17 @@ class Profile(APIView):
         if user is None:
             return render(request, 'user/login.html')
 
-        return render(request, 'content/profile.html', context=dict(user=user))
+        feed_list = Feed.objects.filter(email=email)
+        like_list = list(Like.objects.filter(email=email, is_like=True).values_list('feed_id', flat=True))
+        like_feed_list = Feed.objects.filter(id__in=like_list)
+        bookmark_list = list(Bookmark.objects.filter(email=email, is_marked=True).values_list('feed_id', flat=True))
+        bookmark_feed_list = Feed.objects.filter(id__in=bookmark_list)
+        return render(request, 'content/profile.html', context=dict(feed_list=feed_list,
+                                                                    like_feed_list=like_feed_list,
+                                                                    bookmark_feed_list=bookmark_feed_list,
+                                                                    user=user))
+
+        return render(request, 'content/profile.html', context=dict(feed_list=feed_list, user=user))
 
 
 class UploadReply(APIView):
@@ -118,6 +128,33 @@ class ToggleLike(APIView):
 
         like = Like.objects.filter(feed_id=feed_id, email=email).first()
 
-        Like.objects.create(feed_id=feed_id, is_like=is_like, email=email)
+        if like:
+            like.is_like = is_like
+            like.save()
+        else:
+            Like.objects.create(feed_id=feed_id, is_like=is_like, email=email)
+
+        return Response(status=200)
+
+
+class ToggleBookmark(APIView):
+    def post(self, request):
+        feed_id = request.data.get('feed_id', None)
+        bookmark_text = request.data.get('bookmark_text', None)
+
+        if bookmark_text == 'bookmark_border':
+            is_marked = True
+        else:
+            is_marked = False
+
+        email = request.session.get('email', None)
+
+        bookmark = Bookmark.objects.filter(feed_id=feed_id, email=email).first()
+
+        if bookmark:
+            bookmark.is_marked = is_marked
+            bookmark.save()
+        else:
+            Bookmark.objects.create(feed_id=feed_id, is_marked=is_marked, email=email)
 
         return Response(status=200)
