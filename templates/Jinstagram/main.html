@@ -94,7 +94,7 @@
                     <div class="box" style="width: 25px; height: 25px">
 
                         <img class="profile"
-                               src="{% get_media_prefix %}{{ user.profile_image }}">
+                             src="{% get_media_prefix %}{{ user.profile_image }}">
 
                     </div>
                 </a>
@@ -123,7 +123,7 @@
                              src="{% get_media_prefix %}{{ feed.profile_image }}">
                     </div>
                     <div>
-                        {{ feed.user_id }}
+                        {{ feed.nickname }}
                     </div>
                 </div>
                 <div>
@@ -132,7 +132,16 @@
                 </div>
                 <div style="display: flex; flex-direction: row; justify-content: space-between; margin: 0 20px">
                     <div>
-                        <span class="material-icons-outlined">favorite_border</span>
+                        <span id="favorite_{{ feed.id }}" feed_id="{{ feed.id }}"
+                              class="favorite material-icons-outlined"
+                              style="color: red;cursor: pointer">
+                            {% if feed.is_liked %}
+                            favorite
+                            {% else %}
+                            favorite_border
+                            {% endif %}
+                        </span>
+
                         <span class="material-icons-outlined">mode_comment</span>
                         <span class="material-icons-outlined">send</span>
                     </div>
@@ -145,19 +154,26 @@
                     <b>and {{ feed.like_count }} others</b>
                 </div>
                 <div style="text-align: left; font-size: 16px; margin: 0 20px">
-                    <b>{{ feed.user_id }}</b> {{ feed.content }}
+                    <b>{{ feed.nickname }}</b> {{ feed.content }}
                 </div>
-                <div style="text-align: left; font-size: 14px; margin: 0 20px"><b>Ronaldo</b> I also want to go on a
-                    trip to
-                    Banff.
+
+                <!--comment part in each feed-->
+                <div id="reply_list_{{ feed.id }}">
+                    {% for reply in feed.reply_list %}
+                        <div style="text-align: left; font-size: 14px; margin: 0 20px">
+                            <b>{{ reply.nickname }}</b> {{ reply.reply_content }}
+                        </div>
+                    {% endfor %}
                 </div>
-                <div style="text-align: left; font-size: 14px; margin: 0 20px"><b>Jisung-Park</b> Awesome!!</div>
-                <div style="text-align: left; font-size: 14px; margin: 0 20px"><b>Ssony</b> What a beautiful weather *.*
-                </div>
+
                 <div style="display:flex;flex-direction: row;align-items: center; border-top: solid 1px gray ">
                     <input id="reply_{{ feed.id }}" type="text" class="form-control"
                            style="box-shadow: none; border: none; outline: none"
-                           placeholder="Add a comment for motioncareceo...">
+                           placeholder="Add a comment...">
+                    <div feed_id="{{ feed.id }}" class="upload_reply"
+                         style="width: 50px; color: cornflowerblue; font-weight: bold">
+                        Send
+                    </div>
                 </div>
             </div>
         {% endfor %}
@@ -325,6 +341,72 @@
 
 <!-- Optional JavaScript; choose one of the two! -->
 <script>
+    $('.favorite').click(function(e){
+        let feed_id = e.target.attributes.getNamedItem('feed_id').value;
+        let favorite_id = e.target.id;
+        let favorite_text = $.trim($('#'+favorite_id).html())
+        {#console.log(favorite_text)#}
+        if (favorite_text == 'favorite') {
+            $('#' + favorite_id).html('favorite_border');
+        } else {
+            $('#' + favorite_id).html('favorite');
+        }
+
+        $.ajax({
+            url: "/content/like",
+            data: {
+                feed_id: feed_id,
+                favorite_text: favorite_text
+            },
+            method: "POST",
+            success: function (data) {
+                console.log("성공");
+            },
+            error: function (request, status, error) {
+                console.log("에러");
+            },
+            complete: function () {
+                console.log("완료");
+            }
+        });
+
+    })
+
+
+    $('.upload_reply').click(function (e) {
+        let feed_id = e.target.attributes.getNamedItem('feed_id').value;
+        let reply_id = 'reply_' + feed_id;
+
+        let reply_content = $('#' + reply_id).val();
+
+        if (reply_content.length <= 0) {
+            alert('Please enter the comment!')
+            return 0;
+        }
+
+        $.ajax({
+            url: "/content/reply",
+            data: {
+                feed_id: feed_id,
+                reply_content: reply_content
+            },
+            method: "POST",
+            success: function (data) {
+                console.log('success');
+                $("#reply_list_" + feed_id).append("<div style='margin: 0 20px;text-align: left;font-size: 14px'><b>{{ user.nickname }}</b> " + reply_content + "</div>")
+                {#location.replace('/main');#}
+            },
+            error: function (request, status, error) {
+                console.log('error');
+            },
+            complete: function () {
+                console.log('complete');
+                $('#' + reply_id).val('');
+
+            }
+        })
+
+    });
 
     $(".modal_close").click(function () {
         $('#first_modal').css({
@@ -350,15 +432,11 @@
         let file = files[0];
         let image = files[0].name;
         let content = $('#input_feed_content').val();
-        let user_id = '{{user.nickname }}';
-        let profile_image = '{{ user.profile_image }}';
 
         let fd = new FormData();
         fd.append('file', file);
         fd.append('image', image);
         fd.append('content', content);
-        fd.append('user_id', user_id);
-        fd.append('profile_image', profile_image);
 
         $.ajax({
             url: '/content/upload',
