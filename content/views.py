@@ -18,9 +18,9 @@ class Main(APIView):
         if email is None:
             return render(request, 'user/login.html')
 
-        user = User.objects.filter(email=email).first()
+        host = User.objects.filter(email=email).first()
 
-        if user is None:
+        if host is None:
             return render(request, 'user/login.html')
 
         feed_object_list = Feed.objects.all().order_by('-id')  # select * from content_feed;
@@ -54,7 +54,7 @@ class Main(APIView):
 
         # print('User logged in : ', request.session['email'])
 
-        return render(request, "jinstagram/main.html", context=dict(feeds=feed_list, user=user))
+        return render(request, "jinstagram/main.html", context=dict(feeds=feed_list, user=host))
 
 
 class UploadFeed(APIView):
@@ -90,7 +90,7 @@ class Profile(APIView):
         if user is None:
             return render(request, 'user/login.html')
 
-        feed_list = Feed.objects.filter(email=email)
+        feed_list = Feed.objects.filter(email=email).order_by('-id')
         like_list = list(Like.objects.filter(email=email, is_like=True).values_list('feed_id', flat=True))
         like_feed_list = Feed.objects.filter(id__in=like_list)
         bookmark_list = list(Bookmark.objects.filter(email=email, is_marked=True).values_list('feed_id', flat=True))
